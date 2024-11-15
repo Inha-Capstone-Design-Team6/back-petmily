@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: petmily
+  api:
+    serviceKey: ${SERVICE_KEY}

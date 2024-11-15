@@ -4,12 +4,18 @@ import capstone.petmily.dto.RegionInfoResponseDto;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -19,6 +25,11 @@ import java.util.Map;
 
 @Service
 public class RegionInfoService {
+
+    @Autowired
+    private RestTemplate restTemplate;
+    @Value("${spring.api.serviceKey}")
+    private String serviceKey;
 
     private static final Map<String, String> cityCodeMap = new HashMap<>();
 
@@ -83,30 +94,22 @@ public class RegionInfoService {
 
     public JSONArray districtInfoRequest(String cityCode) throws IOException {
 
-        StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1543061/abandonmentPublicSrvc/sigungu"); /*URL*/
-        urlBuilder.append("?" + URLEncoder.encode("serviceKey","UTF-8") + "=m6tHI0xEBj9D7Mhb%2FRuo2gTIHbbo7nAt9PQP0ar9qdvymlU8%2F1S6EWGcGE08H1E5wuDTfDpIS5%2BCPDRTvZ83tw%3D%3D"); /*Service Key*/
-        urlBuilder.append("&" + URLEncoder.encode("upr_cd","UTF-8") + "=" + URLEncoder.encode(cityCode, "UTF-8")); /*시군구 상위코드(시도코드) (입력 시 데이터 O, 미입력 시 데이터 X)*/
-        urlBuilder.append("&" + URLEncoder.encode("_type","UTF-8") + "=" + URLEncoder.encode("json", "UTF-8")); /*xml(기본값) 또는 json*/
-        URL url = new URL(urlBuilder.toString());
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Content-type", "application/json");
-        System.out.println("Response code: " + conn.getResponseCode());
-        BufferedReader rd;
-        if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        } else {
-            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
-        }
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = rd.readLine()) != null) {
-            sb.append(line);
-        }
-        String result = sb.toString();
+        DefaultUriBuilderFactory builder = new DefaultUriBuilderFactory();
+        builder.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
 
-        rd.close();
-        conn.disconnect();
+        String uriString = builder.builder()
+                .scheme("http")
+                .host("apis.data.go.kr")
+                .path("/1543061/abandonmentPublicSrvc/sigungu")
+                .queryParam("serviceKey", serviceKey)
+                .queryParam("upr_cd", cityCode)
+                .queryParam("_type", "json")
+                .build()
+                .toString();
+
+        URI uri = URI.create(uriString);
+        ResponseEntity<String> response = restTemplate.getForEntity(uri, String.class);
+        String result = response.getBody();
 
         JSONArray districtInfoArray = null;
         try{
