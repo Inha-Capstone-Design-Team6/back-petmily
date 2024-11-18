@@ -24,8 +24,15 @@ public class PetRecommendController {
 
         JSONObject animal = petRecommendService.openApiRequest(breedCode, cityCode, districtCode);
 
-        if(animal == null)
-            return ApiResponse.onSuccess("No animals found", null);
+        if(animal == null) {
+
+            JSONObject fallbackAnimal = petRecommendService.openApiRequest(breedCode, "", "");
+            if(fallbackAnimal == null){
+                return ApiResponse.onSuccess("No animals found", null);
+            }
+            else
+                return ApiResponse.onSuccess(RecommendConverter.toAdoptRecommendResultDto(fallbackAnimal));
+        }
         else
             return ApiResponse.onSuccess(RecommendConverter.toAdoptRecommendResultDto(animal));
     }
