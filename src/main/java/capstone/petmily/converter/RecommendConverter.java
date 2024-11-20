@@ -9,7 +9,7 @@ public class RecommendConverter {
 
         return RecommendResponseDto.adoptRecommendResultDto.builder()
                 .desertionNo((String) animal.get("desertionNo"))
-                .image((String) animal.get("image"))
+                .image((String) animal.get("popfile"))
                 .happenDt((String) animal.get("happenDt"))
                 .happenPlace((String) animal.get("happenPlace"))
                 .kindCd((String) animal.get("kindCd"))
@@ -29,7 +29,6 @@ public class RecommendConverter {
                 .orgNm((String) animal.get("orgNm"))
                 .chargeNm((String) animal.get("chargeNm"))
                 .officetel((String) animal.get("officetel"))
-                .noticeComment((String) animal.get("noticeComment"))
                 .build();
     }
 }

@@ -34,6 +34,5 @@ public class RecommendResponseDto {
         String orgNm;       // 관할 기관
         String chargeNm;    // 담당자
         String officetel;   // 담당자 연락처
-        String noticeComment;   // 특이 사항
     }
 }
