@@ -26,10 +26,15 @@ public class PetRecommendService {
     @Value("${spring.api.serviceKey}")
     private String serviceKey;
 
-    public JSONObject openApiRequest(String breedCode, String cityCode, String districtCode) throws IOException{
+    public JSONObject openApiRequest(String animalType, String breedCode, String cityCode, String districtCode) throws IOException{
 
         DefaultUriBuilderFactory builder = new DefaultUriBuilderFactory();
         builder.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
+
+        String upkind;
+        if(animalType.equals("dog")) upkind = "417000";
+        else if(animalType.equals("cat")) upkind = "422400";
+        else return null;
 
         String uriString = builder.builder()
                 .scheme("http")
@@ -38,7 +43,7 @@ public class PetRecommendService {
                 .queryParam("serviceKey", serviceKey)
                 .queryParam("bgnde", "")
                 .queryParam("endde", "")
-                .queryParam("upkind", "")
+                .queryParam("upkind", upkind)
                 .queryParam("kind", breedCode)
                 .queryParam("upr_cd", cityCode)
                 .queryParam("org_cd", districtCode)
