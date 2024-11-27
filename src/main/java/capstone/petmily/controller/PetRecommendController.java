@@ -19,15 +19,15 @@ public class PetRecommendController {
 
     @GetMapping("/adopt")
     public ApiResponse<RecommendResponseDto.adoptRecommendResultDto> adoptRecommend(@RequestParam(name = "animal_type") String animalType,
-                                                                                    @RequestParam(name = "breed_code") String breedCode,
+                                                                                    @RequestParam(name = "breed_name") String breedName,
                                                                                     @RequestParam(name = "city_code") String cityCode,
                                                                                     @RequestParam(name = "district_code") String districtCode) throws IOException {
 
-        JSONObject animal = petRecommendService.openApiRequest(animalType, breedCode, cityCode, districtCode);
+        JSONObject animal = petRecommendService.openApiRequest(animalType, breedName, cityCode, districtCode);
 
         if(animal == null) {
 
-            JSONObject fallbackAnimal = petRecommendService.openApiRequest(animalType, "", cityCode, districtCode);
+            JSONObject fallbackAnimal = petRecommendService.openApiRequest(animalType, null, cityCode, districtCode);
             if(fallbackAnimal == null){
                 return ApiResponse.onSuccess("No animals found", null);
             }

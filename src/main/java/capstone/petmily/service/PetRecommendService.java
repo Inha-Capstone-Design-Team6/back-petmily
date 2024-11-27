@@ -1,5 +1,7 @@
 package capstone.petmily.service;
 
+import capstone.petmily.repository.CatRepository;
+import capstone.petmily.repository.DogRepository;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -10,12 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.io.BufferedReader;
 import java.io.IOException;
 
 @Service
@@ -25,15 +22,30 @@ public class PetRecommendService {
     private RestTemplate restTemplate;
     @Value("${spring.api.serviceKey}")
     private String serviceKey;
+    private DogRepository dogRepository = DogRepository.getInstance();
+    private CatRepository catRepository = CatRepository.getInstance();
 
-    public JSONObject openApiRequest(String animalType, String breedCode, String cityCode, String districtCode) throws IOException{
+    public JSONObject openApiRequest(String animalType, String breedName, String cityCode, String districtCode) throws IOException{
 
         DefaultUriBuilderFactory builder = new DefaultUriBuilderFactory();
         builder.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
 
         String upkind;
-        if(animalType.equals("dog")) upkind = "417000";
-        else if(animalType.equals("cat")) upkind = "422400";
+        String breedCode;
+        if(animalType.equals("dog")) {
+            upkind = "417000";
+            if(breedName != null)
+                breedCode = dogRepository.findByBreedName(breedName);
+            else
+                breedCode = "";
+        }
+        else if(animalType.equals("cat")) {
+            upkind = "422400";
+            if(breedName != null)
+                breedCode = catRepository.findByBreedName(breedName);
+            else
+                breedCode = "";
+        }
         else return null;
 
         String uriString = builder.builder()

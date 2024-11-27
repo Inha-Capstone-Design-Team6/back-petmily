@@ -1,5 +1,6 @@
 package capstone.petmily.service;
 
+import capstone.petmily.repository.CatRepository;
 import org.json.simple.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ class PetRecommendServiceTest {
     private PetRecommendService petRecommendService;
     @Value("${spring.api.serviceKey}")
     private String serviceKey;
+    private CatRepository catRepository = CatRepository.getInstance();
 
     @BeforeEach
     public void setUp() {
@@ -41,7 +43,8 @@ class PetRecommendServiceTest {
     @Test
     void openApiRequest() throws IOException {
 
-        String breedCode = "000200";
+        String animalType = "cat";
+        String breedName = "한국고양이";
         String cityCode = "6260000";
         String districtCode = "3360000";
 
@@ -54,8 +57,8 @@ class PetRecommendServiceTest {
                 .queryParam("serviceKey", serviceKey)
                 .queryParam("bgnde", "")
                 .queryParam("endde", "")
-                .queryParam("upkind", "")
-                .queryParam("kind", breedCode)
+                .queryParam("upkind", "422400")
+                .queryParam("kind", catRepository.findByBreedName(breedName))
                 .queryParam("upr_cd", cityCode)
                 .queryParam("org_cd", districtCode)
                 .queryParam("care_reg_no", "")
@@ -86,7 +89,7 @@ class PetRecommendServiceTest {
         ResponseEntity<String> responseEntity = new ResponseEntity<>(mockJsonResponse, HttpStatus.OK);
 
         when(restTemplate.getForEntity(uri, String.class)).thenReturn(responseEntity);
-        JSONObject response = petRecommendService.openApiRequest(breedCode, cityCode, districtCode);
+        JSONObject response = petRecommendService.openApiRequest(animalType, breedName, cityCode, districtCode);
 
         assertNotNull(response);
         assertEquals("[고양이] 한국 고양이", response.get("kindCd"));
